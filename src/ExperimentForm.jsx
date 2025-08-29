@@ -1,30 +1,8 @@
 import { useState } from "react";
 
 export default function ExperimentForm() {
-  const [formData, setFormData] = useState({
-    idExperimento: "",
-    nombre: "",
-    responsable: "",
-    fechaInicio: "",
-    fechaFin: "",
-    hipotesis: "",
-    objetivo: "",
-    solucion: "",
-    metricaPrincipal: "",
-    metricaSecundaria: "",
-    metricaInicial: "",
-    grupo: "",
-    resultadosMetricaPrincipal: "",
-    resultadosMetricaSecundaria: "",
-    descripcionIntervencion: "",
-    resultadosCuantitativos: "",
-    resultadosCualitativos: "",
-    aprendizajes: "",
-    decision: "",
-    proximosPasos: "",
-    links: "",
-    notas: ""
-  });
+  const [formData, setFormData] = useState({});
+  const [openSection, setOpenSection] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,64 +11,86 @@ export default function ExperimentForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch("https://script.google.com/macros/s/AKfycbyRv2qtzd7MtpWasRKSZndKuT0U31eeNU4Hm57ra05I7b9vdlyRsWjA_QlZZBVSF7Qdfw/exec", {
+      await fetch("TU_ENDPOINT_DE_GOOGLE_APPS_SCRIPT", {
         method: "POST",
-        mode: "no-cors", // evita errores CORS
+        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       alert("✅ Experimento registrado en Google Sheets!");
-      setFormData({});
     } catch (error) {
       console.error(error);
       alert("❌ Error al registrar experimento");
     }
   };
 
+  const inputClass =
+    "border p-3 rounded-lg focus:ring-2 focus:ring-[#71EAD5] outline-none w-full";
+
+  const Section = ({ title, children, id }) => (
+    <div className="mb-4 border rounded-lg">
+      <button
+        type="button"
+        onClick={() => setOpenSection(openSection === id ? null : id)}
+        className="w-full text-left p-4 bg-gradient-to-r from-[#00A884] via-[#830eff] to-[#6640d3] text-white font-semibold rounded-t-lg"
+      >
+        {title}
+      </button>
+      {openSection === id && (
+        <div className="p-4 bg-white space-y-3">{children}</div>
+      )}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-4xl">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="min-h-screen bg-[#F5F7F6] flex items-center justify-center p-6">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-3xl">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="https://habi.co/favicon-32x32.png"
+            alt="Habi Logo"
+            className="h-14"
+          />
+        </div>
+
+        {/* Título */}
+        <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-[#00A884] via-[#830eff] to-[#6640d3] text-transparent bg-clip-text">
           Registro de Experimentos HabiCredit
         </h1>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-          
-          {/* Campos principales */}
-          <input type="text" name="idExperimento" placeholder="ID Experimento" value={formData.idExperimento} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="nombre" placeholder="Nombre del experimento *" required value={formData.nombre} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="responsable" placeholder="Responsable *" required value={formData.responsable} onChange={handleChange} className="border p-2 rounded" />
-          <input type="date" name="fechaInicio" required value={formData.fechaInicio} onChange={handleChange} className="border p-2 rounded" />
-          <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleChange} className="border p-2 rounded" />
 
-          {/* Hipótesis / Objetivo / Solución */}
-          <textarea name="hipotesis" placeholder="Hipótesis *" required value={formData.hipotesis} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="objetivo" placeholder="Objetivo *" required value={formData.objetivo} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="solucion" placeholder="Solución propuesta" value={formData.solucion} onChange={handleChange} className="border p-2 rounded" />
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Sección 1 */}
+          <Section title="Información general" id="general">
+            <input type="text" name="idExperimento" placeholder="ID Experimento" onChange={handleChange} className={inputClass} />
+            <input type="text" name="nombre" placeholder="Nombre del experimento *" required onChange={handleChange} className={inputClass} />
+            <input type="text" name="responsable" placeholder="Responsable *" required onChange={handleChange} className={inputClass} />
+            <input type="date" name="fechaInicio" required onChange={handleChange} className={inputClass} />
+            <input type="date" name="fechaFin" onChange={handleChange} className={inputClass} />
+          </Section>
 
-          {/* Métricas */}
-          <input type="text" name="metricaPrincipal" placeholder="Métrica principal *" required value={formData.metricaPrincipal} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="metricaSecundaria" placeholder="Métrica secundaria" value={formData.metricaSecundaria} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="metricaInicial" placeholder="Métrica inicial" value={formData.metricaInicial} onChange={handleChange} className="border p-2 rounded" />
+          {/* Sección 2 */}
+          <Section title="Diseño del experimento" id="diseno">
+            <textarea name="hipotesis" placeholder="Hipótesis *" required onChange={handleChange} className={inputClass} />
+            <textarea name="objetivo" placeholder="Objetivo *" required onChange={handleChange} className={inputClass} />
+            <textarea name="solucion" placeholder="Solución propuesta" onChange={handleChange} className={inputClass} />
+            <input type="text" name="grupo" placeholder="Grupo control/experimental" onChange={handleChange} className={inputClass} />
+            <textarea name="descripcionIntervencion" placeholder="Descripción intervención" onChange={handleChange} className={inputClass} />
+          </Section>
 
-          {/* Grupo / Resultados */}
-          <input type="text" name="grupo" placeholder="Grupo control/experimental" value={formData.grupo} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="resultadosMetricaPrincipal" placeholder="Resultados métrica principal" value={formData.resultadosMetricaPrincipal} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="resultadosMetricaSecundaria" placeholder="Resultados métrica secundaria" value={formData.resultadosMetricaSecundaria} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="descripcionIntervencion" placeholder="Descripción intervención" value={formData.descripcionIntervencion} onChange={handleChange} className="border p-2 rounded" />
+          {/* Sección 3 */}
+          <Section title="Métricas" id="metricas">
+            <input type="text" name="metricaPrincipal" placeholder="Métrica principal *" required onChange={handleChange} className={inputClass} />
+            <input type="text" name="metricaSecundaria" placeholder="Métrica secundaria" onChange={handleChange} className={inputClass} />
+            <input type="text" name="metricaInicial" placeholder="Métrica inicial" onChange={handleChange} className={inputClass} />
+          </Section>
 
-          {/* Aprendizajes y cierre */}
-          <textarea name="resultadosCuantitativos" placeholder="Resultados cuantitativos" value={formData.resultadosCuantitativos} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="resultadosCualitativos" placeholder="Resultados cualitativos" value={formData.resultadosCualitativos} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="aprendizajes" placeholder="Aprendizajes" value={formData.aprendizajes} onChange={handleChange} className="border p-2 rounded" />
-          <input type="text" name="decision" placeholder="Decisión" value={formData.decision} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="proximosPasos" placeholder="Próximos pasos" value={formData.proximosPasos} onChange={handleChange} className="border p-2 rounded" />
-
-          {/* Links y notas */}
-          <input type="url" name="links" placeholder="Links a data/reportes" value={formData.links} onChange={handleChange} className="border p-2 rounded" />
-          <textarea name="notas" placeholder="Notas adicionales" value={formData.notas} onChange={handleChange} className="border p-2 rounded" />
-
-          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-            Registrar experimento
+          <button
+            type="submit"
+            className="w-full bg-[#00A884] text-white font-bold py-3 rounded-lg hover:bg-[#6640d3] transition"
+          >
+            Registrar Experimento
           </button>
         </form>
       </div>

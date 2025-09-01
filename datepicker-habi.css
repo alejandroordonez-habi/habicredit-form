@@ -1,0 +1,54 @@
+/* ====== DatePicker Estilo Habi ====== */
+
+/* Fondo del calendario */
+.react-datepicker {
+  font-family: inherit;
+  border: none;
+  background-color: #1f2937; /* gris oscuro */
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+/* Header (mes y año) */
+.react-datepicker__header {
+  background-color: #830eff; /* morado habi */
+  border-bottom: none;
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Texto del mes y año */
+.react-datepicker__current-month {
+  font-weight: bold;
+  color: white;
+}
+
+.react-datepicker__day-name {
+  color: #f3e8ff; /* lila claro */
+}
+
+/* Días */
+.react-datepicker__day {
+  color: white;
+}
+
+.react-datepicker__day:hover {
+  background-color: #6640d3; /* morado más oscuro */
+  border-radius: 6px;
+}
+
+/* Día seleccionado */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #22c55e !important; /* verde habi */
+  color: white !important;
+  border-radius: 6px;
+}
+
+/* Hoy */
+.react-datepicker__day--today {
+  border: 1px solid #c093f8; /* borde lila */
+  border-radius: 6px;
+}

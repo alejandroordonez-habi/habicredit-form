@@ -5,13 +5,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./datepicker-habi.css";
 import habiLogo from "./assets/habi-logo.png";
 
+const ENDPOINT =
+  "https://script.google.com/macros/s/AKfycbzprwLJg0xmFTU0SMBp3MkXX6C1kMkbNyWURv4kf3ga5oFsZOhW8vfI7VaVP7sMF-FyLA/exec";
+
 let experimentCounter = 1;
 
 export default function ExperimentForm() {
   const [openSection, setOpenSection] = useState(0);
   const [experimentId, setExperimentId] = useState("");
 
-  // Estado único (ACTUALIZADO: agregamos metricaPrincipalInicial y metricaSecundariaInicial; quitamos metricaInicial)
+  // Estado único (con métricas iniciales separadas)
   const [formData, setFormData] = useState({
     idExperimento: "",
     nombre: "",
@@ -50,22 +53,40 @@ export default function ExperimentForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.nombre || !formData.metricaPrincipal) {
+    // Mezcla final: valores del estado + lo último escrito en el form (aunque no haya hecho blur)
+    const fd = new FormData(e.target);
+    const merged = {
+      ...formData,
+      nombre: fd.get("nombre") ?? formData.nombre,
+      responsable: fd.get("responsable") ?? formData.responsable,
+      hipotesis: fd.get("hipotesis") ?? formData.hipotesis,
+      objetivo: fd.get("objetivo") ?? formData.objetivo,
+      solucion: fd.get("solucion") ?? formData.solucion,
+      grupo: fd.get("grupo") ?? formData.grupo,
+      metricaPrincipal: fd.get("metricaPrincipal") ?? formData.metricaPrincipal,
+      metricaSecundaria: fd.get("metricaSecundaria") ?? formData.metricaSecundaria,
+      metricaPrincipalInicial:
+        fd.get("metricaPrincipalInicial") ?? formData.metricaPrincipalInicial,
+      metricaSecundariaInicial:
+        fd.get("metricaSecundariaInicial") ?? formData.metricaSecundariaInicial
+    };
+
+    if (!merged.nombre || !merged.metricaPrincipal) {
       alert("⚠️ Debes llenar al menos Nombre del experimento y Métrica principal.");
       return;
     }
 
     const payload = {
-      ...formData,
-      fechaInicio: formData.fechaInicio ? formData.fechaInicio.toISOString().split("T")[0] : "",
-      fechaFin: formData.fechaFin ? formData.fechaFin.toISOString().split("T")[0] : ""
+      ...merged,
+      fechaInicio: merged.fechaInicio ? merged.fechaInicio.toISOString().split("T")[0] : "",
+      fechaFin: merged.fechaFin ? merged.fechaFin.toISOString().split("T")[0] : ""
     };
 
     try {
-      await fetch("https://script.google.com/macros/s/AKfycbzprwLJg0xmFTU0SMBp3MkXX6C1kMkbNyWURv4kf3ga5oFsZOhW8vfI7VaVP7sMF-FyLA/exec", {
+      await fetch(ENDPOINT, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        // 👇 sin headers para evitar preflight en local y mantener el comportamiento que ya funcionaba
         body: JSON.stringify(payload)
       });
 
@@ -142,9 +163,19 @@ export default function ExperimentForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información general */}
-          <Section title="Información general" index={0} gradient="bg-gradient-to-r from-[#830eff] to-[#6640d3]">
+          <Section
+            title="Información general"
+            index={0}
+            gradient="bg-gradient-to-r from-[#830eff] to-[#6640d3]"
+          >
             <label className={labelClass}>ID Experimento</label>
-            <input type="text" name="idExperimento" value={formData.idExperimento} readOnly className={inputClass} />
+            <input
+              type="text"
+              name="idExperimento"
+              value={formData.idExperimento}
+              readOnly
+              className={inputClass}
+            />
 
             <label className={labelClass}>Nombre del experimento</label>
             <input
@@ -156,15 +187,30 @@ export default function ExperimentForm() {
               onBlur={handleBlur}
             />
 
-            <label className={labelClass}>Responsable</label>
-            <input
-              type="text"
-              name="responsable"
-              defaultValue={formData.responsable}
-              placeholder="Ej: Juan Pérez"
-              className={inputClass}
-              onBlur={handleBlur}
-            />
+           <label className={labelClass}>Responsable</label>
+<label className={labelClass}>Responsable</label>
+<select
+  name="responsable"
+  value={formData.responsable}
+  onChange={(e) => setFormData((prev) => ({ ...prev, responsable: e.target.value }))}
+  className={inputClass}
+>
+  <option value="">-- Selecciona responsable --</option>
+  <option value="Alberth Fabian Perez Mendivelso">Alberth Fabian Perez Mendivelso</option>
+<option value="Alejandro Ordoñez Moreno">Alejandro Ordoñez Moreno</option>
+  <option value="Ana Lucia Giron Quiroga">Ana Lucia Giron Quiroga</option>
+  <option value="Angel Arnulfo Torres Robayo">Angel Arnulfo Torres Robayo</option>
+  <option value="Daniel Bonilla Guevara">Daniel Bonilla Guevara</option>
+  <option value="Dannia Isabel Loaiza Sierra">Dannia Isabel Loaiza Sierra</option>
+  <option value="Emmanuel Herrera Pereda">Emmanuel Herrera Pereda</option>
+  <option value="German Felipe Barrios Goyeneche">German Felipe Barrios Goyeneche</option>
+  <option value="Ivan Ricardo Saavedra Villamil">Ivan Ricardo Saavedra Villamil</option>
+  <option value="Jeinner Daniel Baez Mantilla">Jeinner Daniel Baez Mantilla</option>
+  <option value="Johhan Stiwer Ramirez Alvarez">Johhan Stiwer Ramirez Alvarez</option>
+  <option value="Juan Pablo Grimaldos Olivella">Juan Pablo Grimaldos Olivella</option>
+  <option value="Maria Jose Niño Rodriguez">Maria Jose Niño Rodriguez</option>
+</select>
+
 
             <label className={labelClass}>Fecha de inicio</label>
             <DatePicker
@@ -186,7 +232,11 @@ export default function ExperimentForm() {
           </Section>
 
           {/* Diseño del experimento */}
-          <Section title="Diseño del experimento" index={1} gradient="bg-gradient-to-r from-[#830eff] to-[#c093f8]">
+          <Section
+            title="Diseño del experimento"
+            index={1}
+            gradient="bg-gradient-to-r from-[#830eff] to-[#c093f8]"
+          >
             <label className={labelClass}>Hipótesis</label>
             <textarea
               name="hipotesis"
@@ -226,7 +276,11 @@ export default function ExperimentForm() {
           </Section>
 
           {/* Métricas */}
-          <Section title="Métricas" index={2} gradient="bg-gradient-to-r from-[#6640d3] to-[#c093f8]">
+          <Section
+            title="Métricas"
+            index={2}
+            gradient="bg-gradient-to-r from-[#6640d3] to-[#c093f8]"
+          >
             <label className={labelClass}>Métrica principal</label>
             <input
               type="text"
